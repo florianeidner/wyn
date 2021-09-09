@@ -9,6 +9,11 @@ on:
     branches:
     - main
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Create release (true/false)'
+        required: true
+        default: 'false'
 
 jobs:
   test:
@@ -46,7 +51,7 @@ jobs:
           publish/${{ matrix.rid }}
   release:
     needs: [test, build]
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push'}}
+    if: ${{ (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event.inputs.release == 'true'}}
     runs-on: ubuntu-latest
     steps:
     - name: Download all workflow run artifacts
