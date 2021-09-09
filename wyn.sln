@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wyn.cli.tests", "src\wyn.cl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wyn.core", "src\wyn.core\wyn.core.csproj", "{90D560D3-AD01-40E4-968E-37DAC735FCB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wyn.core.tests", "wyn.core.tests\wyn.core.tests.csproj", "{7742747D-8158-4BB1-B87E-D136334B84FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wyn.core.tests", "src\wyn.core.tests\wyn.core.tests.csproj", "{7742747D-8158-4BB1-B87E-D136334B84FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
