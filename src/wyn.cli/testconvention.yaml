@@ -1,0 +1,62 @@
+﻿version: '1.0'
+providers:
+  az:
+    convention: "[type]-[context]-[region]-[stage]-[name]-[instance]"
+    namingBlocks:
+      type:
+        regex: "^\\w{2,6}\\Z"
+        default: rg
+      context:
+        regex: "^\\w{4}\\Z"
+        default: gmdm
+      region:
+        regex: "^\\w{3}\\Z"
+        default: euw
+      name:
+        regex: "^[\\w\\d]{4,8}\\Z"
+        default: shared
+      stage:
+        regex: "^[d,i,s,p,x]\\Z"
+        default: d
+      instance:
+        regex: "^\\d{3}\\Z"
+        default: '000'
+    tags:
+      name: value
+    subs:
+      storageaccount:
+        convention: "[type][context][region][name][stage][instance]"
+        tags:
+          tfResourceType: azurerm_storage_account
+      keyvault:
+        tags:
+          tfResourceType: azurerm_key_vault
+        namingBlocks:
+          type:
+            regex: "^kv$"
+            default: kv
+          name:
+            regex: "^[\\w\\d]{4,5}\\Z"
+            default: secrt
+  ado:
+    convention: "[context]-[name]"
+    namingBlocks:
+      context:
+        regex: "^[\\w\\d]{2,8}\\Z"
+        default: gmdm
+      name:
+        regex: "^[\\w\\d]{2,10}\\Z"
+        default: adoelement
+    subs:
+      pipeline:
+        convention: "[context]-[type]-[name]"
+        namingBlocks:
+          type:
+            regex: "^app$|^infra$|^util$"
+            default: infra
+      serviceconnection:
+        convention: "sc-[context]-[name]"
+        namingBlocks:
+          name:
+            regex: "^app$|^infra$|^util$"
+            default: infra

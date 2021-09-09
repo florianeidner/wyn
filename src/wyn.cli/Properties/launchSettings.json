@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "wyn": {
+      "commandName": "Project",
+      "commandLineArgs": "check -p az -t teststate.tfstate",
+      "environmentVariables": {
+        "WYN_CONVENTION": "file=testconvention.yaml"
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+    "version": "1.0",
+    "providers": {
+        "az": {
+            "convention": "[type]-[context]-[region]-[name]-[stage]-[instance]",
+            "namingBlocks": {
+                "type": {
+                    "regex": "^\\w{2,6}\\Z",
+                    "default": "rg"
+                },
+                "context": {
+                    "regex": "^\\w{4}\\Z",
+                    "default": "gmdm"
+                },
+                "region": {
+                    "regex": "^\\w{3}\\Z",
+                    "default": "euw"
+                },
+                "name": {
+                    "regex": "^[\\w\\d]{4,8}\\Z",
+                    "default": "shared"
+                },
+                "stage": {
+                    "regex": "^[d,i,s,p,x]\\Z",
+                    "default": "d"
+                },
+                "instance": {
+                    "regex": "^\\d{3}\\Z",
+                    "default": "000"
+                }
+            },
+            "subs": {
+                "storageaccount": {
+                    "convention": "[type][context][region][name][stage][instance]"
+                },
+                "keyvault": {
+                    "namingBlocks": {
+                        "type": {
+                            "regex": "^\\w{2,6}\\Z",
+                            "default": "kv"
+                        },
+                        "name": {
+                            "regex": "^[\\w\\d]{4,5}\\Z",
+                            "default": "secrt"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
