@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\wyn.core\wyn.core.csproj" />
+    <ProjectReference Include="..\wyn.core\wyn.core.csproj" />
   </ItemGroup>
 
 </Project>
