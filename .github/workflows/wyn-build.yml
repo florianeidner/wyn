@@ -7,9 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -18,9 +17,29 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build windows
-      run: dotnet build --no-restore --runtime win-x64
-    - name: Build linux
-      run: dotnet build --no-restore --runtime linux-x64
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    - name: Build CLI
+      run: dotnet build src/wyn.cli/wyn.cli.csproj --no-restore --runtime win-x64
+  build-win:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Test CLI
+      run: dotnet test
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build CLI
+      run: dotnet build src/wyn.cli/wyn.cli.csproj --no-restore --runtime linux-x64
