@@ -1,4 +1,4 @@
-name: wyn-build-0.1.${{ github.run_number }}
+name: wyn-build
 
 on:
   push:
