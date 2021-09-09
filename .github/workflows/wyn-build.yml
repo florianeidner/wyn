@@ -46,13 +46,18 @@ jobs:
     steps:
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v2
+    - name: Create Framework packages
+      run: |
+        tar cvzf wyn.tar.gz linux-x64/wyn
+        zip -q wyn.zip win-x64/wyn.exe
     - name: Create release
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: true
-        title: "PreReleas"
+        title: "PreRelease"
         files: |
-          win-x64/*
+          wyn.tar.gz
+          wyn.zip
     
