@@ -30,7 +30,13 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build & publish CLI
-      run: dotnet publish src/wyn.cli/wyn.cli.csproj -r win-x64 -c Release -p:PublishSingleFile=true --self-contained false
+      run: dotnet publish src/wyn.cli/wyn.cli.csproj -r win-x64 -c Release -p:PublishSingleFile=true --self-contained false --output publish
+    - name: Archive windows package
+      uses: actions/upload-artifact@v2
+      with:
+        name: windows
+        path: |
+          publish
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +48,13 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build & publish CLI
-      run: dotnet publish src/wyn.cli/wyn.cli.csproj -r linux-x64 -c Release -p:PublishSingleFile=true --self-contained false
+      run: dotnet publish src/wyn.cli/wyn.cli.csproj -r linux-x64 -c Release -p:PublishSingleFile=true --self-contained false --output publish
+    - name: Archive linux package
+      uses: actions/upload-artifact@v2
+      with:
+        name: linux
+        path: |
+          publish
   release:
     needs: [test, build-win, build-linux]
     runs-on: ubuntu-latest
