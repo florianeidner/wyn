@@ -59,7 +59,7 @@ jobs:
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "0.1.${{ github.run_number }}"
-        prerelease: true
+        draft: true
         title: "0.1.${{ github.run_number }}-pre"
         files: |
           wyn.tar.gz
