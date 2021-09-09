@@ -18,7 +18,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build CLI
-      run: dotnet build src/wyn.cli/wyn.cli.csproj --no-restore --runtime win-x64
+      run: dotnet test
   build-win:
     runs-on: windows-latest
     steps:
@@ -29,8 +29,8 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Test CLI
-      run: dotnet test
+    - name: Build & publish CLI
+      run: dotnet publish src/wyn.cli/wyn.cli.csproj -r win-x64 -c Release -p:PublishSingleFile=true --self-contained false
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -41,5 +41,17 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build CLI
-      run: dotnet build src/wyn.cli/wyn.cli.csproj --no-restore --runtime linux-x64
+    - name: Build & publish CLI
+      run: dotnet publish src/wyn.cli/wyn.cli.csproj -r linux-x64 -c Release -p:PublishSingleFile=true --self-contained false
+  release:
+    needs: [test, build-win, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-without-markdown
+          path: |
+            dist
+            !dist/**/*.md
+    
