@@ -19,26 +19,11 @@ jobs:
       run: dotnet restore
     - name: Build CLI
       run: dotnet test
-  build-win:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build & publish CLI
-      run: dotnet publish src/wyn.cli/wyn.cli.csproj -r win-x64 -c Release -p:PublishSingleFile=true --self-contained false --output publish
-    - name: Archive windows package
-      uses: actions/upload-artifact@v2
-      with:
-        name: windows
-        path: |
-          publish
-  build-linux:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rid: ['win-x64', 'linux-x64']
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -48,15 +33,15 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build & publish CLI
-      run: dotnet publish src/wyn.cli/wyn.cli.csproj -r linux-x64 -c Release -p:PublishSingleFile=true --self-contained false --output publish
-    - name: Archive linux package
+      run: dotnet publish src/wyn.cli/wyn.cli.csproj -r ${{ matrix.rid }} -c Release -p:PublishSingleFile=true --self-contained false --output publish/${{ matrix.rid }}
+    - name: Archive package
       uses: actions/upload-artifact@v2
       with:
-        name: linux
+        name: ${{ matrix.rid }}
         path: |
-          publish
+          publish/${{ matrix.rid }}
   release:
-    needs: [test, build-win, build-linux]
+    needs: [test, build]
     runs-on: ubuntu-latest
     steps:
       - name: Archive production artifacts
