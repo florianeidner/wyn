@@ -2,9 +2,12 @@ name: wyn-build
 
 on:
   push:
-    branches: [ main ]
+    branches:
+    - main
+    - feature/*
   pull_request:
-    branches: [ main ]
+    branches:
+    - main
 
 jobs:
   test:
@@ -42,6 +45,7 @@ jobs:
           publish/${{ matrix.rid }}
   release:
     needs: [test, build]
+    if: ${{ github.ref == 'refs/heads/main' && github.head_ref == null}}
     runs-on: ubuntu-latest
     steps:
     - name: Download all workflow run artifacts
