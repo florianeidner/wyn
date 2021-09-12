@@ -180,7 +180,6 @@ namespace wyn.cli.Commands
 
         protected void OutputToConsole(string data)
         {
-            _console.BackgroundColor = ConsoleColor.Black;
             _console.ForegroundColor = ConsoleColor.White;
             _console.Out.Write(data);
             _console.ResetColor();
@@ -197,14 +196,14 @@ namespace wyn.cli.Commands
         protected void OutputWarning(string message)
         {
             _console.ForegroundColor = ConsoleColor.Yellow;
-            _console.Error.WriteLine(message);
+            _console.Out.WriteLine(message);
             _console.ResetColor();
         }
 
         protected void OutputSuccess(string message)
         {
             _console.ForegroundColor = ConsoleColor.Green;
-            _console.Error.WriteLine(message);
+            _console.Out.WriteLine(message);
             _console.ResetColor();
         }
     }
