@@ -11,9 +11,9 @@ namespace wyn.core.Models
 
         public string GenerateName(Dictionary<string, string> values);
 
-        public Tuple<bool, List<(ErrorType, string)>> CheckTfState(TfState state);
+        public Tuple<bool, List<(ResultType, string)>> CheckTfState(TfState state);
 
-        public Tuple<bool, List<(ErrorType, string)>> CheckTfPlan(TfPlan plan);
+        public Tuple<bool, List<(ResultType, string)>> CheckTfPlan(TfPlan plan);
 
     }
 }

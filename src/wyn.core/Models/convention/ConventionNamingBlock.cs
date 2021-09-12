@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using YamlDotNet.Serialization;
 
 namespace wyn.core.Models
 {
@@ -29,12 +27,17 @@ namespace wyn.core.Models
             return new Tuple<bool, List<string>>(!errors.Any(), errors);
         }
 
-        [YamlMember(Alias = "default")]
-        [JsonProperty(PropertyName = "default")]
+        public object Clone()
+        {
+            return new ConventionNamingBlock()
+            {
+                Default = this.Default.ToString(),
+                Regex = this.Regex.ToString()
+            };
+        }
+
         public string Default { get; set; }
 
-        [YamlMember(Alias = "regex")]
-        [JsonProperty(PropertyName = "regex")]
         public string Regex { get; set; }
     }
 }

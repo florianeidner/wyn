@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using wyn.cli.Enums;
-using wyn.core.ConventionBuilder;
+using wyn.core;
 using wyn.core.Models;
 using wyn.core.Models.terraform;
 using wyn.core.Utils;
@@ -97,7 +97,14 @@ namespace wyn.cli.Commands
                     break;
             }
 
-            Convention = new ConventionBuilder().CreateFromString(conventionString);
+            try
+            {
+                Convention = new ConventionBuilder().CreateFromConventionString(conventionString);
+            }
+            catch (ConventionBuilderException ex)
+            {
+                OutputError(ex.Message, true);
+            }
 
             var r = Convention.IsValid();
             if (r.Item1 == false)
@@ -190,6 +197,13 @@ namespace wyn.cli.Commands
         protected void OutputWarning(string message)
         {
             _console.ForegroundColor = ConsoleColor.Yellow;
+            _console.Error.WriteLine(message);
+            _console.ResetColor();
+        }
+
+        protected void OutputSuccess(string message)
+        {
+            _console.ForegroundColor = ConsoleColor.Green;
             _console.Error.WriteLine(message);
             _console.ResetColor();
         }

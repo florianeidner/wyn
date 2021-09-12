@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace wyn.core.Models
 {
-    public interface IConventionNamingBlock
+    public interface IConventionNamingBlock : ICloneable
     {
         string Default { get; set; }
         string Regex { get; set; }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using wyn.core.Models;
 
-namespace wyn.core.ConventionBuilder
+namespace wyn.core
 {
     public class ConventionProviderBuilder : IConventionBuilderStep
     {
@@ -35,6 +36,10 @@ namespace wyn.core.ConventionBuilder
                 namePrefix = $"{parent.Name}.";
             provider.Name = $"{namePrefix}{name}";
 
+            // Tags
+            provider.Tags = p.Tags;
+
+
             // Naming structure
             if (parent != null)
                 provider.NamingStructure = parent.NamingStructure;
@@ -43,9 +48,12 @@ namespace wyn.core.ConventionBuilder
 
             // Naming blocks
             if (parent != null)
-                provider.NamingBlocks = parent.NamingBlocks;
+                provider.NamingBlocks = parent.NamingBlocks.ToDictionary(
+                    entry => entry.Key,
+                    entry => (ConventionNamingBlock)entry.Value.Clone());
             if (provider.NamingBlocks == null)
                 provider.NamingBlocks = new Dictionary<string, ConventionNamingBlock>();
+
             if (p.NamingBlocks != null)
                 foreach (var b in p.NamingBlocks)
                 {
