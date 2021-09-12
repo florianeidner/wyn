@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+src/wyn.cli/testtfplan.json
+src/wyn.cli/testtfstate.json
+
 # User-specific files
 *.rsuser
 *.suo

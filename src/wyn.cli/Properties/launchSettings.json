@@ -2,9 +2,9 @@
   "profiles": {
     "wyn": {
       "commandName": "Project",
-      "commandLineArgs": "check -p az -t teststate.tfstate",
+      "commandLineArgs": "check -p az -t C:\\Daten\\projekte\\42_PRIVAT_wyn\\code\\src\\wyn.cli\\testtfplan.json",
       "environmentVariables": {
-        "WYN_CONVENTION": "file=testconvention.yaml"
+        "WYN_CONVENTION": "file=C:\\Daten\\projekte\\42_PRIVAT_wyn\\code\\src\\wyn.cli\\testconvention.yaml"
       }
     }
   }

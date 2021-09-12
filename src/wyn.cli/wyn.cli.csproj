@@ -19,10 +19,10 @@
 
   <ItemGroup>
     <None Update="testconvention.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="testconvention.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="teststate.tfstate">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

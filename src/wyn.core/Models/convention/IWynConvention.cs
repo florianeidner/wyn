@@ -7,5 +7,7 @@ namespace wyn.core.Models
     {
         public Version GetVersion();
         public Tuple<bool, List<string>> IsValid();
+        public IEnumerable<IWynConventionProvider> GetProviders();
+        public IWynConventionProvider GetProvider(string name);
     }
 }
