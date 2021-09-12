@@ -115,11 +115,9 @@ namespace wyn.core.Models
             return name;
         }
 
-        public Tuple<bool, List<(ErrorType, string)>> CheckName(string name)
+        public Tuple<bool, List<(ResultType, string)>> CheckName(string name)
         {
-            List<(ErrorType, string)> errors = new List<(ErrorType, string)>();
-
-            // First split into namingblocks
+            List<(ResultType, string)> results = new();
 
             //find the delimiter:
             Regex nb = new Regex(@"\[[^\]\[]+\]");
@@ -128,7 +126,7 @@ namespace wyn.core.Models
             var delimiters = d.Skip(1).Take(d.Length - 2).ToArray();
             if (delimiters.Count() < (namingBlocks.Count() - 1) || delimiters.Any(d => d == ""))
             {
-                errors.Add((ErrorType.warning, $"Cannot check '{name}' against convention: '{this.NamingStructure}'. Naming convention doesnt have delimiters between all blocks."));
+                results.Add((ResultType.warning, $"Cannot check '{name}' against convention: '{this.NamingStructure}'. Naming convention doesnt have delimiters between all blocks."));
 
             }
             else
@@ -145,7 +143,7 @@ namespace wyn.core.Models
                     var nameSplit = tempName.Split(delimiters[i], 2);
 
                     if (nameSplit.Length != 2)
-                        errors.Add((ErrorType.error, $"{name}: Structure doesnt comply with convention {this.NamingStructure}"));
+                        results.Add((ResultType.error, $"{name}: Structure doesnt comply with convention '{this.NamingStructure}'"));
 
                     else
                     {
@@ -154,17 +152,19 @@ namespace wyn.core.Models
 
                         var conventionNamingBlock = this.NamingBlocks.Where(n => n.Key == namingBlocks[i].Value.Substring(1, namingBlocks[i].Value.Length - 2)).Single();
                         if (!Regex.IsMatch(nameBlock, conventionNamingBlock.Value.Regex))
-                            errors.Add((ErrorType.error, $"{name}: Name part '{nameBlock}' doesnt match with naming block '{conventionNamingBlock.Key}' regex {conventionNamingBlock.Value.Regex}"));
+                            results.Add((ResultType.error, $"{name}: Name part '{nameBlock}' doesnt match with naming block '{conventionNamingBlock.Key}' regex '{conventionNamingBlock.Value.Regex}'"));
+                        else
+                            results.Add((ResultType.success, $"'{name}' is compliant with '{this.Name}'"));
                     }
                 }
             }
 
-            return new Tuple<bool, List<(ErrorType, string)>>(!errors.Any(e => e.Item1 == ErrorType.error), errors);
+            return new Tuple<bool, List<(ResultType, string)>>(!results.Any(e => e.Item1 == ResultType.error), results);
         }
 
-        public Tuple<bool, List<(ErrorType, string)>> CheckTfState(TfState state)
+        public Tuple<bool, List<(ResultType, string)>> CheckTfState(TfState state)
         {
-            var errors = new List<(ErrorType, string)>();
+            var results = new List<(ResultType, string)>();
 
             foreach (TfStateResource r in state.Resources)
             {
@@ -184,23 +184,23 @@ namespace wyn.core.Models
 
                         if (providers.Count() != 1)
                         {
-                            errors.Add((ErrorType.warning, $"None or multiple providers found for terraform resource type: '{r.Type}'"));
+                            results.Add((ResultType.warning, $"None or multiple providers found for terraform resource type: '{r.Type}'"));
                             continue;
                         }
 
                         var p = providers.Single();
 
-                        errors.AddRange(p.CheckName(i.Attributes.Name).Item2);
+                        results.AddRange(p.CheckName(i.Attributes.Name).Item2);
                     }
                 }
             }
 
-            return new Tuple<bool, List<(ErrorType, string)>>(!errors.Any(e => e.Item1 == ErrorType.error), errors);
+            return new Tuple<bool, List<(ResultType, string)>>(!results.Any(e => e.Item1 == ResultType.error), results);
         }
 
-        public Tuple<bool, List<(ErrorType, string)>> CheckTfPlan(TfPlan plan)
+        public Tuple<bool, List<(ResultType, string)>> CheckTfPlan(TfPlan plan)
         {
-            var errors = new List<(ErrorType, string)>();
+            var errors = new List<(ResultType, string)>();
 
             List<TfPlanResource> plannedRessources = plan.PlannedValues.RootModule.Resources;
 
@@ -223,7 +223,7 @@ namespace wyn.core.Models
 
                     if (providers.Count() != 1)
                     {
-                        errors.Add((ErrorType.warning, $"None or multiple providers found for terraform resource type: '{r.Type}'"));
+                        errors.Add((ResultType.warning, $"None or multiple providers found for terraform resource type: '{r.Type}'"));
                         continue;
                     }
 
@@ -233,7 +233,7 @@ namespace wyn.core.Models
                 }
             }
 
-            return new Tuple<bool, List<(ErrorType, string)>>(!errors.Any(e => e.Item1 == ErrorType.error), errors);
+            return new Tuple<bool, List<(ResultType, string)>>(!errors.Any(e => e.Item1 == ResultType.error), errors);
         }
     }
 }

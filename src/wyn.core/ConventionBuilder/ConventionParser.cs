@@ -1,12 +1,20 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using wyn.core.Models;
 using YamlDotNet.Serialization;
 
-namespace wyn.core.ConventionBuilder
+namespace wyn.core
 {
     public class ConventionParser : IConventionBuilderStep
     {
+        private List<string> errorList;
+
+        public ConventionParser()
+        {
+            errorList = new();
+        }
+
         public WynConvention Build(WynConvention convention) 
         {
             if (TryParseJson(convention.ConventionInputString, out WynConventionIO jsonResult))
@@ -19,26 +27,29 @@ namespace wyn.core.ConventionBuilder
             }
             else
             {
-                throw new NotImplementedException();
+                throw new ConventionBuilderException(errorList);
             }
 
             return convention;
         }
 
-        internal static bool TryParseJson(string jsonString, out WynConventionIO result)
+        internal bool TryParseJson(string jsonString, out WynConventionIO result)
         {
             bool success = true;
 
             var settings = new JsonSerializerSettings
             {
-                Error = (sender, args) => { success = false; args.ErrorContext.Handled = true; },
-                MissingMemberHandling = MissingMemberHandling.Error
+                Error = (sender, args) => {
+                    success = false;
+                    errorList.Add($"JSON parser error: {args.ErrorContext.Error.Message}");
+                    args.ErrorContext.Handled = true; },
+                MissingMemberHandling = MissingMemberHandling.Ignore
             };
             result = JsonConvert.DeserializeObject<WynConventionIO>(jsonString, settings);
             return success;
         }
 
-        internal static bool TryParseYaml(string yamlString, out WynConventionIO result)
+        internal bool TryParseYaml(string yamlString, out WynConventionIO result)
         {
             var yamlDeserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
@@ -48,9 +59,10 @@ namespace wyn.core.ConventionBuilder
                 result = yamlDeserializer.Deserialize<WynConventionIO>(yamlString);
                 return true;
             }
-            catch
+            catch(Exception ex)
             {
-                result = new WynConventionIO();
+                errorList.Add($"YAML parser error: {ex.Message}");
+                result = new();
                 return false;
             }
         }

@@ -1,6 +1,6 @@
 ﻿using wyn.core.Models;
 
-namespace wyn.core.ConventionBuilder
+namespace wyn.core
 {
     public interface IConventionBuilderStep
     {

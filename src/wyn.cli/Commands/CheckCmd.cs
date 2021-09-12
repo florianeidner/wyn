@@ -25,7 +25,7 @@ namespace wyn.cli.Commands
             base.LoadProvider();
             base.LoadTfFile();
 
-            Tuple<bool, List<(ErrorType, string)>> result = null;
+            Tuple<bool, List<(ResultType, string)>> result = null;
 
             if (TfFileObject.Item1 == TfFileType.tfplan)
                 result = Provider.CheckTfPlan(TfFileObject.Item2);
@@ -34,14 +34,17 @@ namespace wyn.cli.Commands
             else
                 OutputError("TfFile couldnt be read", true);
             
-            result.Item2.Distinct().ToList().ForEach(e =>
+            result.Item2.Distinct().ToList().OrderBy(s => s.Item1).ToList().ForEach(e =>
             {
                 switch (e.Item1)
                 {
-                    case ErrorType.error:
+                    case ResultType.success:
+                        OutputSuccess(e.Item2);
+                        break;
+                    case ResultType.error:
                         OutputError(e.Item2);
                         break;
-                    case ErrorType.warning:
+                    case ResultType.warning:
                         OutputWarning(e.Item2);
                         break;
                 }
