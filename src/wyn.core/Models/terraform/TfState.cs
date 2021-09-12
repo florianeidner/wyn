@@ -21,6 +21,6 @@ namespace wyn.core.Models.terraform
         public object Outputs { get; set; }
 
         [JsonProperty("resources")]
-        public List<TfResource> Resources { get; set; }
+        public List<TfStateResource> Resources { get; set; }
     }
 }

@@ -1,8 +1,9 @@
-﻿version: '1.0'
+﻿schema: '0.1'
+version: '1.0'
 providers:
   az:
-    convention: "[type]-[context]-[region]-[stage]-[name]-[instance]"
-    namingBlocks:
+    structure: "[type]-[context]-[region]-[stage]-[name]-[instance]"
+    blocks:
       type:
         regex: "^\\w{2,6}\\Z"
         default: rg
@@ -25,22 +26,42 @@ providers:
       name: value
     subs:
       storageaccount:
-        convention: "[type][context][region][name][stage][instance]"
+        structure: "[type][context][region][name][stage][instance]"
         tags:
           tfResourceType: azurerm_storage_account
       keyvault:
         tags:
           tfResourceType: azurerm_key_vault
-        namingBlocks:
+        blocks:
           type:
             regex: "^kv$"
             default: kv
           name:
             regex: "^[\\w\\d]{4,5}\\Z"
             default: secrt
+      resourcegroup:
+        tags:
+          tfResourceType: azurerm_resource_group
+        blocks:
+          type:
+            regex: "^rg$"
+            default: rg
+          name:
+            regex: "^[\\w\\d]{3,8}\\Z"
+            default: rg1
+      aks:
+        tags:
+          tfResourceType: azurerm_kubernetes_cluster
+        blocks:
+          type:
+            regex: "^aks$"
+            default: aks
+          name:
+            regex: "^[\\w\\d]{3,8}\\Z"
+            default: aks1
   ado:
-    convention: "[context]-[name]"
-    namingBlocks:
+    structure: "[context]-[name]"
+    blocks:
       context:
         regex: "^[\\w\\d]{2,8}\\Z"
         default: gmdm
@@ -49,14 +70,17 @@ providers:
         default: adoelement
     subs:
       pipeline:
-        convention: "[context]-[type]-[name]"
-        namingBlocks:
+        structure: "[context]-[type]-[name]"
+        blocks:
           type:
             regex: "^app$|^infra$|^util$"
             default: infra
       serviceconnection:
-        convention: "sc-[context]-[name]"
-        namingBlocks:
+        structure: "[type]-[context]-[name]"
+        blocks:
           name:
             regex: "^app$|^infra$|^util$"
             default: infra
+          type:
+            regex: "^sc$"
+            default: "sc"

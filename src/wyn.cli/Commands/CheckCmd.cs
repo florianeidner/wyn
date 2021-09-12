@@ -1,7 +1,10 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using wyn.cli.Enums;
 using wyn.core.Enums;
 
 namespace wyn.cli.Commands
@@ -20,11 +23,18 @@ namespace wyn.cli.Commands
 
             base.LoadConvention();
             base.LoadProvider();
-            base.LoadTfState();
+            base.LoadTfFile();
 
-            var result = Provider.CheckTfState(TfStateObject);
+            Tuple<bool, List<(ErrorType, string)>> result = null;
 
-            result.Item2.ForEach(e =>
+            if (TfFileObject.Item1 == TfFileType.tfplan)
+                result = Provider.CheckTfPlan(TfFileObject.Item2);
+            else if (TfFileObject.Item1 == TfFileType.tfstate)
+                result = Provider.CheckTfState(TfFileObject.Item2);
+            else
+                OutputError("TfFile couldnt be read", true);
+            
+            result.Item2.Distinct().ToList().ForEach(e =>
             {
                 switch (e.Item1)
                 {
@@ -38,7 +48,7 @@ namespace wyn.cli.Commands
             });
 
             if (result.Item1 == true)
-                OutputToConsole("TfState names compliant to naming convention.");
+                OutputToConsole("Terraform names compliant to naming convention.");
 
             return Task.FromResult(Convert.ToInt32(!result.Item1));
         }

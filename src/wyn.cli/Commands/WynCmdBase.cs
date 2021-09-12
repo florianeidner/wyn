@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using wyn.cli.Enums;
+using wyn.core.ConventionBuilder;
 using wyn.core.Models;
 using wyn.core.Models.terraform;
 using wyn.core.Utils;
@@ -29,16 +30,16 @@ namespace wyn.cli.Commands
         [Option(CommandOptionType.SingleValue, ShortName = "a", LongName = "additional-params", Description = "Additional parameters, comma separated list. eg name=fix,noname=4", ValueName = "additional params", ShowInHelpText = true)]
         private string AdditionalParametersInput { get; set; }
 
-        [Option(CommandOptionType.SingleValue, ShortName = "t", LongName = "tfstate-file", Description = "Terraform statefile to check for naming convention", ValueName = "tfstate file", ShowInHelpText = true)]
-        private string TfStateFilePath { get; set; }
+        [Option(CommandOptionType.SingleValue, ShortName = "t", LongName = "terraform-file", Description = "Terraform file to check for naming convention", ValueName = "terraform file", ShowInHelpText = true)]
+        private string TfFilePath { get; set; }
 
         protected ILogger _logger;
         protected IConsole _console;
-        internal WynConvention Convention { get; set; }
+        internal IWynConvention Convention { get; set; }
 
-        internal WynConventionProvider Provider { get; set; }
+        internal IWynConventionProvider Provider { get; set; }
 
-        internal TfState TfStateObject { get; set; }
+        internal Tuple<TfFileType, dynamic> TfFileObject { get; set; }
 
         internal Dictionary<string, string> AdditionalParameters { get; set; }
 
@@ -58,7 +59,7 @@ namespace wyn.cli.Commands
                 conventionSource = new Tuple<ConventionSource, string>(ConventionSource.inline, ConventionJson);
 
             else if (!String.IsNullOrWhiteSpace(ConventionFilePath))
-                conventionSource = new Tuple<ConventionSource, string>(ConventionSource.file,ConventionFilePath);
+                conventionSource = new Tuple<ConventionSource, string>(ConventionSource.file, ConventionFilePath);
 
             else if (!String.IsNullOrWhiteSpace(ConventionUrl))
                 conventionSource = new Tuple<ConventionSource, string>(ConventionSource.url, ConventionUrl);
@@ -84,30 +85,27 @@ namespace wyn.cli.Commands
                         conventionString = reader.ReadToEnd();
                     }
                     break;
-                
+
                 case ConventionSource.url:
                     throw new NotImplementedException();
-                
+
                 case ConventionSource.git:
                     throw new NotImplementedException();
-                
+
                 default:
                     OutputError("Please provide a convention.", true);
                     break;
             }
 
-            if (!conventionString.TryParseConvention(out WynConvention c))
-                OutputError("Convention input is not a valid json or yaml.");
+            Convention = new ConventionBuilder().CreateFromString(conventionString);
 
-            var r = c.IsValid();
+            var r = Convention.IsValid();
             if (r.Item1 == false)
             {
                 string errorMessage = "Convention is invalid:";
                 r.Item2.ForEach(m => errorMessage += $"\n\t{m}");
                 OutputError(errorMessage, true);
             }
-
-            Convention = c;
         }
 
         protected void LoadProvider()
@@ -118,49 +116,40 @@ namespace wyn.cli.Commands
 
             else if (!String.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(Constants.ENV_PROVIDER)))
                 p = Environment.GetEnvironmentVariable(Constants.ENV_PROVIDER);
-            else 
+            else
                 OutputError("Please set a provider.", true);
 
             if (Convention == null) OutputError("Convention not loaded", true);
 
-            string[] providerPath = p.Split(".");
-            if (!Convention.Providers.TryGetValue(providerPath[0], out WynConventionProvider provider))
-                OutputError($"Provider '{providerPath[0]}' not found.", true);
+            var provider = Convention.GetProvider(p);
+            if (provider == null)
+                OutputError($"Provider '{p}' not found.", true);
 
-            //Select subproviders
-            for (int i = 1; i < providerPath.Length; i++)
-            {
-                if (provider.SubConventionProviders.TryGetValue(providerPath[i], out WynConventionProvider subprovider))
-                {
-                    provider = subprovider.CopyFromParent(provider);
-                }
-                else
-                {
-                    OutputError($"Subprovider '{providerPath[i]}' not found");
-                    break;
-                }
-            }
             Provider = provider;
         }
 
-        protected void LoadTfState()
+        protected void LoadTfFile()
         {
             string tfStateString = "";
 
-            using (StreamReader reader = new StreamReader(TfStateFilePath))
+            using (StreamReader reader = new StreamReader(TfFilePath))
             {
                 tfStateString = reader.ReadToEnd();
             }
 
-            if (tfStateString.TryParseTfState(out TfState s)) {
-                TfStateObject = s;
-            }
-
-            else
+            if (tfStateString.TryParseTfState(out TfState s) && s.Resources != null)
             {
-                OutputError("Error parsing tf state file.", false);
+                TfFileObject = new Tuple<TfFileType, dynamic>(TfFileType.tfstate, s);
+                OutputToConsole("Successfully loaded Terraform State.\n");
             }
 
+            else if (tfStateString.TryParseTfPlan(out TfPlan p) && p.PlannedValues != null)
+            {
+                TfFileObject = new Tuple<TfFileType, dynamic>(TfFileType.tfplan, p);
+                OutputToConsole("Successfully loaded Terraform Plan.\n");
+            }
+            else
+                OutputError("Error parsing tf state file.", false);
         }
 
         protected void LoadAdditionalParameters()

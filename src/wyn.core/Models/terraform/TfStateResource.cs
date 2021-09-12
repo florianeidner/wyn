@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace wyn.core.Models.terraform
 {
-    public class TfResource
+    public class TfStateResource
     {
         [JsonProperty("mode")]
         public string Mode { get; set; }
